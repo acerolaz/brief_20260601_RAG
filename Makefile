@@ -1,70 +1,106 @@
 .DEFAULT_GOAL := help
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CONFIGURATION
+# ═══════════════════════════════════════════════════════════════════════════════
+
 UV            = uv
 DOCKER_COMPOSE = docker compose
 
-.PHONY: help
-help: ## Display this help screen
+# ═══════════════════════════════════════════════════════════════════════════════
+# PHONY TARGETS (non-file targets)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+.PHONY: help init init-db build up down logs docs lint format test test-unit test-acceptance coverage check
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# HELP
+# ═══════════════════════════════════════════════════════════════════════════════
+
+help: ## 📖 Display this help screen
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
-	  | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[32m%-22s\033[0m %s\n", $$1, $$2}'
+	  | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-# ── Local dev setup ───────────────────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🔧 LOCAL DEVELOPMENT SETUP
+# ═══════════════════════════════════════════════════════════════════════════════
 
-.PHONY: init
-init: ## Copy .env.example → .env, create venv and install dependencies
+init: ## Initialize local environment (venv + deps + .env)
+	@echo "🔨 Setting up local development environment..."
 	cp -n .env.example .env || true
 	$(UV) venv
 	$(UV) pip install -r requirements.txt
+	@echo "✅ Setup complete! Run 'make up' to start services."
 
-.PHONY: init-db
-init-db: ## Run DB migrations (create pgvector extension + tables)
+init-db: ## 🗄️  Initialize database (create pgvector extension + tables)
+	@echo "📊 Running database migrations..."
 	$(UV) run python -m src.infrastructure.config.init_db
+	@echo "✅ Database initialized!"
 
-# ── Docker ────────────────────────────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🐳 DOCKER & SERVICES
+# ═══════════════════════════════════════════════════════════════════════════════
 
-.PHONY: build
-build: ## Build Docker images
+build: ## 🔨 Build Docker images (PostgreSQL + API)
+	@echo "🔨 Building Docker images..."
 	$(DOCKER_COMPOSE) build
+	@echo "✅ Build complete!"
 
-.PHONY: up
-up: ## Start the full stack (pgvector + API)
+up: ## ⬆️  Start full stack (PostgreSQL + pgvector + API)
+	@echo "🚀 Starting services..."
 	$(DOCKER_COMPOSE) up -d
+	@echo "✅ Services running! API: http://localhost:8001"
 
-.PHONY: down
-down: ## Stop and remove containers
+down: ## ⬇️  Stop and remove all containers
+	@echo "🛑 Stopping services..."
 	$(DOCKER_COMPOSE) down
+	@echo "✅ Services stopped!"
 
-.PHONY: logs
-logs: ## Tail API logs
+logs: ## 📋 Stream API container logs (Ctrl+C to exit)
 	$(DOCKER_COMPOSE) logs -f api
 
-# ── Quality ───────────────────────────────────────────────────────────────────
+docs: ## 📚 Open API Swagger documentation in browser
+	@echo "📚 Opening Swagger UI at http://localhost:8001/docs"
+	@command -v open >/dev/null 2>&1 && open http://localhost:8001/docs || echo "Please visit: http://localhost:8001/docs"
 
-.PHONY: lint
-lint: ## Run ruff linter
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🧹 CODE QUALITY
+# ═══════════════════════════════════════════════════════════════════════════════
+
+lint: ## 🔍 Check code style with ruff linter
+	@echo "🔍 Running linter..."
 	$(UV) run ruff check src/ tests/
+	@echo "✅ Lint check passed!"
 
-.PHONY: format
-format: ## Auto-format with ruff
+format: ## ✨ Auto-format code with ruff
+	@echo "✨ Formatting code..."
 	$(UV) run ruff format src/ tests/
+	@echo "✅ Formatting complete!"
 
-.PHONY: test
-test: ## Run the full test suite (unit + acceptance)
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🧪 TESTING
+# ═══════════════════════════════════════════════════════════════════════════════
+
+test: ## 🧪 Run full test suite (unit + acceptance tests)
+	@echo "🧪 Running all tests..."
 	$(UV) run pytest tests/ -v
 
-.PHONY: test-unit
-test-unit: ## Run unit tests only
+test-unit: ## 🎯 Run unit tests only (fast, isolated)
+	@echo "🎯 Running unit tests..."
 	$(UV) run pytest tests/unit/ -v
 
-.PHONY: test-acceptance
-test-acceptance: ## Run acceptance (API contract) tests only
+test-acceptance: ## 🔗 Run acceptance tests (API contract validation)
+	@echo "🔗 Running acceptance tests..."
 	$(UV) run pytest tests/acceptance/ -v
 
-.PHONY: coverage
-coverage: ## Run tests with coverage report
+coverage: ## 📊 Generate test coverage report
+	@echo "📊 Generating coverage report..."
 	$(UV) run pytest tests/ --cov=src --cov-report=term-missing
 
-# ── All-in-one ────────────────────────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🎯 ALL-IN-ONE PIPELINES
+# ═══════════════════════════════════════════════════════════════════════════════
 
-.PHONY: check
-check: format lint test ## Format, lint and test in one shot
+check: format lint test ## ✅ Run format + lint + test (full QA pipeline)
+	@echo "✅ All checks passed!"
 

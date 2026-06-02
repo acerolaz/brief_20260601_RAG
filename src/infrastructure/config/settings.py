@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     debug: bool = False
     project_name: str = "Tech Watch RAG Agent"
     api_v1_str: str = "/api/v1"
+    server_port: int = 8001
     log_level: str = "INFO"
 
     # Database / pgvector

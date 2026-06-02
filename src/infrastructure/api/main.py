@@ -15,8 +15,11 @@ settings = get_settings()
 
 app = FastAPI(
     title=settings.project_name,
-    openapi_url=f"{settings.api_v1_str}/openapi.json",
-    docs_url=f"{settings.api_v1_str}/docs",
+    description="Retrieval-Augmented Generation (RAG) system with LangChain",
+    version="1.0.0",
+    openapi_url="/openapi.json",
+    docs_url="/docs",
+    redoc_url="/redoc",
 )
 
 api_router = APIRouter(prefix=settings.api_v1_str)

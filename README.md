@@ -268,7 +268,12 @@ make up
 make init-db
 
 # Verify health
-curl http://localhost:8000/health
+curl http://localhost:8001/health
+
+# Access Swagger UI (interactive API documentation)
+open http://localhost:8001/docs
+# or ReDoc
+open http://localhost:8001/redoc
 ```
 
 ### 4. Test Locally
@@ -293,7 +298,7 @@ The system exposes three **driving adapters**:
 For integrations, web frontends, and microservices:
 
 ```bash
-curl -X POST http://localhost:8000/api/v1/query \
+curl -X POST http://localhost:8001/api/v1/query \
   -H "Content-Type: application/json" \
   -d '{"question": "What is RAG?"}'
 ```
@@ -330,6 +335,28 @@ asyncio.run(main())
 ---
 
 ## 📋 REST Endpoints
+
+### 📖 Interactive API Documentation (Swagger UI)
+
+The API includes **Swagger UI** for interactive exploration and testing:
+
+```bash
+# Start the services
+make up
+
+# Open Swagger UI in your browser
+make docs
+
+# Or manually visit:
+# 🔗 Swagger UI: http://localhost:8001/docs
+# 🔗 ReDoc:      http://localhost:8001/redoc
+```
+
+In Swagger UI, you can:
+- ✅ View all endpoints with descriptions
+- ✅ Test requests directly from the browser
+- ✅ See request/response schemas
+- ✅ Check error responses
 
 ### Ingest a Structured Document
 
