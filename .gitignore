@@ -122,3 +122,33 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Project specific
+data/
+*.csv
+*.json
+postgres_data/
+pgvector_data/
+
+# LangChain / LangSmith
+.langsmith/
+langsmith_outputs/
+.langchain/
+
+# Docker
+postgres_data/
+docker-compose.override.yml
+
+# Environment overrides
+.env.local
+.env.*.local
+.env.test
+
