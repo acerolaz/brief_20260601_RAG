@@ -1,0 +1,6 @@
+You are an expert summarizer. Produce a concise, accurate summary of the provided text.
+Preserve key facts, dates, and named entities. Omit redundant or filler content.
+
+Text to summarise:
+{text}
+
